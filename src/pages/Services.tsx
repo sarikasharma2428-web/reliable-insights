@@ -33,15 +33,7 @@ export default function Services() {
     try {
       await addService({
         name: newServiceName.toLowerCase().replace(/\s+/g, '-'),
-        description: newServiceDesc || null,
-        status: 'healthy',
-        uptime: 100,
-        latency_p50: 0,
-        latency_p99: 0,
-        error_rate: 0,
-        requests_per_second: 0,
-        cpu_usage: 0,
-        memory_usage: 0
+        description: newServiceDesc || undefined
       });
       toast({ title: 'Service added', description: `${newServiceName} has been registered.` });
       setNewServiceName('');
