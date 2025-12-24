@@ -135,6 +135,41 @@ export function useAlerts(options?: {
     };
   }, [fetchAlerts]);
 
+  const sendAlertEmail = async (alert: {
+    name: string;
+    severity: string;
+    service_id?: string;
+    message: string;
+    metric_name: string;
+    threshold: number;
+    current_value: number;
+    fired_at: string;
+    serviceName?: string;
+  }) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-alert-email', {
+        body: {
+          alertName: alert.name,
+          severity: alert.severity,
+          serviceName: alert.serviceName || 'Unknown Service',
+          message: alert.message,
+          metricName: alert.metric_name,
+          threshold: alert.threshold,
+          currentValue: alert.current_value,
+          firedAt: alert.fired_at
+        }
+      });
+      
+      if (error) {
+        console.error('Failed to send alert email:', error);
+      } else {
+        console.log('Alert email sent successfully:', data);
+      }
+    } catch (err) {
+      console.error('Error invoking email function:', err);
+    }
+  };
+
   const createAlert = async (alert: {
     name: string;
     severity: string;
@@ -147,10 +182,20 @@ export function useAlerts(options?: {
     const { data, error } = await supabase
       .from('alerts')
       .insert([alert])
-      .select()
+      .select('*, services(name)')
       .single();
     
     if (error) throw error;
+    
+    // Send email notification for critical and warning alerts
+    if (data && (alert.severity === 'critical' || alert.severity === 'warning')) {
+      await sendAlertEmail({
+        ...alert,
+        fired_at: data.fired_at || new Date().toISOString(),
+        serviceName: data.services?.name
+      });
+    }
+    
     return data;
   };
 
