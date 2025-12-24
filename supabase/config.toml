@@ -5,6 +5,3 @@ verify_jwt = false
 
 [functions.simulate-metrics]
 verify_jwt = false
-
-[functions.send-alert-email]
-verify_jwt = false
