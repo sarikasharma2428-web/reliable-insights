@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { LogViewer } from '@/components/sre/LogViewer';
-import { logs, services } from '@/data/mockData';
+import { useLogs } from '@/hooks/useLogs';
+import { useServices } from '@/hooks/useServices';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { 
@@ -11,22 +11,26 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search, Filter, RefreshCw } from 'lucide-react';
-import type { LogLevel } from '@/types/sre';
+import { LogViewer } from '@/components/sre/LogViewer';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Logs() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedService, setSelectedService] = useState<string>('all');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
+  
+  const { logs, loading } = useLogs(200);
+  const { services } = useServices();
 
   const filteredLogs = logs.filter((log) => {
     const matchesSearch = log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          log.service.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesService = selectedService === 'all' || log.service === selectedService;
+                          (log.services?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesService = selectedService === 'all' || log.services?.name === selectedService;
     const matchesLevel = selectedLevel === 'all' || log.level === selectedLevel;
     return matchesSearch && matchesService && matchesLevel;
   });
 
-  const logLevels: LogLevel[] = ['error', 'warn', 'info', 'debug'];
+  const logLevels = ['error', 'warn', 'info', 'debug'];
   const errorCount = logs.filter((l) => l.level === 'error').length;
   const warnCount = logs.filter((l) => l.level === 'warn').length;
 
@@ -36,7 +40,7 @@ export default function Logs() {
         <div>
           <h1 className="text-2xl font-semibold">Logs Explorer</h1>
           <p className="text-sm text-muted-foreground">
-            Search and filter logs from Loki
+            Real-time logs from all services
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm">
@@ -93,7 +97,11 @@ export default function Logs() {
       </div>
 
       {/* Log Viewer */}
-      <LogViewer logs={filteredLogs} maxHeight="calc(100vh - 280px)" />
+      {loading ? (
+        <Skeleton className="h-[500px]" />
+      ) : (
+        <LogViewer logs={filteredLogs} maxHeight="calc(100vh - 280px)" />
+      )}
     </div>
   );
 }

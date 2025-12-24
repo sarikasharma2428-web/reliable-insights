@@ -1,5 +1,7 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   Activity,
@@ -9,6 +11,8 @@ import {
   Settings,
   Server,
   Target,
+  LogOut,
+  User,
 } from 'lucide-react';
 
 const navigation = [
@@ -27,6 +31,13 @@ const bottomNavigation = [
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   return (
     <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-sidebar border-r border-sidebar-border">
@@ -45,7 +56,7 @@ export function Sidebar() {
       <div className="mx-4 mt-4 rounded-md bg-secondary/50 px-3 py-2 border border-border">
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-status-healthy animate-pulse" />
-          <span className="text-xs text-muted-foreground">All systems operational</span>
+          <span className="text-xs text-muted-foreground">Real-time connected</span>
         </div>
       </div>
 
@@ -72,7 +83,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom navigation */}
-      <div className="border-t border-sidebar-border p-3">
+      <div className="border-t border-sidebar-border p-3 space-y-2">
         {bottomNavigation.map((item) => {
           const isActive = location.pathname === item.href;
           return (
@@ -91,6 +102,24 @@ export function Sidebar() {
             </Link>
           );
         })}
+        
+        {/* User info and logout */}
+        <div className="flex items-center justify-between px-3 py-2 rounded-md bg-secondary/30">
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+              {user?.email}
+            </span>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleSignOut}
+          >
+            <LogOut className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
     </aside>
   );

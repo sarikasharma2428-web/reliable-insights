@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Overview from "@/pages/Overview";
 import Services from "@/pages/Services";
 import Metrics from "@/pages/Metrics";
@@ -13,6 +14,7 @@ import IncidentDetail from "@/pages/IncidentDetail";
 import Alerts from "@/pages/Alerts";
 import SLOs from "@/pages/SLOs";
 import Settings from "@/pages/Settings";
+import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,7 +26,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route element={<Layout />}>
+          <Route path="/auth" element={<Auth />} />
+          <Route element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }>
             <Route path="/" element={<Overview />} />
             <Route path="/services" element={<Services />} />
             <Route path="/metrics" element={<Metrics />} />
