@@ -1,0 +1,1 @@
+{"title":"System Overview","panels":[{"title":"Services Health","type":"stat"},{"title":"Active Incidents","type":"stat"},{"title":"Error Rate","type":"gauge"}]}
