@@ -19,7 +19,7 @@ export default function Logs() {
   const [selectedService, setSelectedService] = useState<string>('all');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
   
-  const { logs, loading } = useLogs(200);
+  const { logs, loading } = useLogs({ limit: 200 });
   const { services } = useServices();
 
   const filteredLogs = logs.filter((log) => {

@@ -27,15 +27,21 @@ export function useSystemHealth() {
       if (backendApi.isBackendAvailable()) {
         const data = await backendApi.healthCheck();
         
-        const allHealthy = ['api', 'database', 'prometheus', 'loki']
-          .every(key => data.checks?.[key]?.status === 'healthy');
-        
-        const someHealthy = ['api', 'database', 'prometheus', 'loki']
-          .some(key => data.checks?.[key]?.status === 'healthy');
+        // Check the flat structure returned by healthCheck
+        const dbHealthy = data.database === true;
+        const promHealthy = data.prometheus === true;
+        const lokiHealthy = data.loki === true;
+        const allHealthy = dbHealthy && promHealthy && lokiHealthy;
+        const someHealthy = dbHealthy || promHealthy || lokiHealthy;
 
         setHealth({
           overall: allHealthy ? 'healthy' : someHealthy ? 'degraded' : 'unhealthy',
-          backend: data.checks,
+          backend: {
+            api: { status: 'healthy' },
+            database: { status: dbHealthy ? 'healthy' : 'unhealthy' },
+            prometheus: { status: promHealthy ? 'healthy' : 'unhealthy' },
+            loki: { status: lokiHealthy ? 'healthy' : 'unhealthy' },
+          },
           timestamp: new Date(),
         });
       } else {
