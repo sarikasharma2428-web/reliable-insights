@@ -370,6 +370,18 @@ class BackendApiClient {
       loki: boolean;
     }>('/health/detailed');
   }
+
+  async checkHealth(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}/health`, { 
+        method: 'GET',
+        signal: AbortSignal.timeout(3000)
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
 }
 
 export const backendApi = new BackendApiClient();
