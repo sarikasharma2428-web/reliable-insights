@@ -1,0 +1,1 @@
+{"title":"Metrics Dashboard","panels":[{"title":"CPU Usage","type":"timeseries"},{"title":"Memory Usage","type":"timeseries"},{"title":"Request Rate","type":"timeseries"},{"title":"Latency P99","type":"timeseries"}]}

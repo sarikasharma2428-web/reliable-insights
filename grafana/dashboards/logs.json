@@ -1,0 +1,1 @@
+{"title":"Logs Explorer","panels":[{"title":"Log Stream","type":"logs","datasource":"Loki"}]}
