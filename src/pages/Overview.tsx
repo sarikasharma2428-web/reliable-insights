@@ -2,9 +2,11 @@ import { ServiceCard } from '@/components/sre/ServiceCard';
 import { IncidentRow } from '@/components/sre/IncidentRow';
 import { AlertRow } from '@/components/sre/AlertRow';
 import { GoldenSignalsPanel } from '@/components/sre/GoldenSignalsPanel';
+import { SystemHealthIndicator } from '@/components/sre/SystemHealthIndicator';
 import { useServices } from '@/hooks/useServices';
 import { useIncidents } from '@/hooks/useIncidents';
 import { useAlerts } from '@/hooks/useAlerts';
+import { useSystemHealth } from '@/hooks/useSystemHealth';
 import { Activity, AlertTriangle, Server, Bell, RefreshCw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -12,6 +14,7 @@ export default function Overview() {
   const { services, loading: servicesLoading } = useServices();
   const { incidents, loading: incidentsLoading } = useIncidents();
   const { alerts, loading: alertsLoading } = useAlerts();
+  const { health } = useSystemHealth();
 
   const activeIncidents = incidents.filter((i) => i.status !== 'resolved');
   const criticalServices = services.filter((s) => s.status === 'critical' || s.status === 'degraded');
@@ -64,6 +67,7 @@ export default function Overview() {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          <SystemHealthIndicator health={health} />
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
               <Server className="h-4 w-4 text-muted-foreground" />
