@@ -1,6 +1,7 @@
 import { Bell, RefreshCw, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
+import { BackendStatusIndicator } from '@/components/sre/BackendStatusIndicator';
 
 export function Header() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -19,6 +20,7 @@ export function Header() {
           <span className="text-border">|</span>
           <span>UTC: {currentTime.toISOString().split('T')[1].split('.')[0]}</span>
         </div>
+        <BackendStatusIndicator />
       </div>
 
       <div className="flex items-center gap-2">
