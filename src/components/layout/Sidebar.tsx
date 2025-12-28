@@ -13,7 +13,10 @@ import {
   Target,
   LogOut,
   User,
+  FlaskConical,
 } from 'lucide-react';
+
+const isDev = import.meta.env.DEV;
 
 const navigation = [
   { name: 'Overview', href: '/', icon: LayoutDashboard },
@@ -26,6 +29,7 @@ const navigation = [
 ];
 
 const bottomNavigation = [
+  ...(isDev ? [{ name: 'Test Panel', href: '/test-panel', icon: FlaskConical, isDev: true }] : []),
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -94,11 +98,15 @@ export function Sidebar() {
                 'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                 isActive
                   ? 'bg-sidebar-accent text-primary'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground',
+                'isDev' in item && 'border border-dashed border-status-warning/50'
               )}
             >
-              <item.icon className="h-4 w-4" />
+              <item.icon className={cn('h-4 w-4', 'isDev' in item && 'text-status-warning')} />
               {item.name}
+              {'isDev' in item && (
+                <span className="ml-auto text-[10px] text-status-warning font-mono">DEV</span>
+              )}
             </Link>
           );
         })}
