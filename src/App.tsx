@@ -16,6 +16,7 @@ import SLOs from "@/pages/SLOs";
 import Settings from "@/pages/Settings";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
+import TestPanel from "@/pages/TestPanel";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/slos" element={<SLOs />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/test-panel" element={<TestPanel />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
