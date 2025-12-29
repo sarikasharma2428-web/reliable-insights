@@ -1,25 +1,21 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Allowed origins for CORS - restrict to known domains
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:4173',
-  'http://localhost:3000',
-];
+// CORS headers for all origins (dev only function)
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get('origin') || '';
-  const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-  
-  return {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-}
-
+/**
+ * Test Data Generation Function
+ * 
+ * This function generates sample data for testing purposes.
+ * It creates services with realistic metrics, logs, alerts, and incidents.
+ * 
+ * IMPORTANT: This function inserts REAL data into the database.
+ * It should only be called from the Test Panel in development mode.
+ */
 Deno.serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req);
-  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -37,14 +33,15 @@ Deno.serve(async (req) => {
 
     if (servicesError) throw servicesError
 
+    // If no services exist, create default test services
     if (!services || services.length === 0) {
-      // Create default services if none exist
       const defaultServices = [
         { name: 'api-gateway', description: 'Main API Gateway', status: 'healthy' },
         { name: 'auth-service', description: 'Authentication Service', status: 'healthy' },
         { name: 'payment-service', description: 'Payment Processing', status: 'healthy' },
+        { name: 'inventory-service', description: 'Inventory Management', status: 'healthy' },
         { name: 'notification-service', description: 'Notification System', status: 'healthy' },
-        { name: 'database-primary', description: 'Primary Database', status: 'healthy' },
+        { name: 'user-service', description: 'User Management', status: 'healthy' },
       ]
 
       const { data: newServices, error: insertError } = await supabase
@@ -54,18 +51,26 @@ Deno.serve(async (req) => {
 
       if (insertError) throw insertError
       
-      return new Response(JSON.stringify({ message: 'Created default services', services: newServices }), {
+      return new Response(JSON.stringify({ 
+        message: 'Created default services',
+        servicesCreated: newServices.length,
+        servicesUpdated: 0,
+        metricsRecorded: 0,
+        alertsCreated: 0,
+        incidentsCreated: 0,
+        logsGenerated: 0
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    const metrics = []
-    const alerts = []
-    const incidents = []
-    const updatedServices = []
+    const metrics: unknown[] = []
+    const alerts: unknown[] = []
+    const incidents: unknown[] = []
+    const updatedServices: unknown[] = []
 
     for (const service of services) {
-      // Simulate realistic metrics with some variability
+      // Generate realistic metrics with some variability
       const baseLatency = 50 + Math.random() * 100
       const latencySpike = Math.random() > 0.95 ? Math.random() * 500 : 0
       const latencyP50 = Math.round(baseLatency + latencySpike)
@@ -128,7 +133,7 @@ Deno.serve(async (req) => {
         })
       }
 
-      // Auto-detect incidents and create alerts
+      // Auto-detect issues and create alerts/incidents
       if (status === 'critical' || status === 'degraded') {
         // Check for existing open incidents for this service
         const { data: existingIncidents } = await supabase
@@ -220,7 +225,7 @@ Deno.serve(async (req) => {
       await supabase
         .from('services')
         .update(service)
-        .eq('id', service.id)
+        .eq('id', (service as { id: string }).id)
     }
 
     // Batch insert metrics
@@ -238,7 +243,7 @@ Deno.serve(async (req) => {
       await supabase.from('incidents').insert(incidents)
     }
 
-    // Generate some logs
+    // Generate logs
     const logLevels = ['info', 'info', 'info', 'warn', 'error', 'debug']
     const logMessages = [
       'Request processed successfully',
@@ -253,7 +258,7 @@ Deno.serve(async (req) => {
       'Memory threshold exceeded',
     ]
 
-    const logs = []
+    const logs: unknown[] = []
     for (const service of services) {
       const numLogs = Math.floor(Math.random() * 3) + 1
       for (let i = 0; i < numLogs; i++) {
@@ -290,9 +295,12 @@ Deno.serve(async (req) => {
     })
 
   } catch (error: unknown) {
-    console.error('Error in simulate-metrics:', error)
+    console.error('Error in data generation:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ 
+      success: false,
+      error: errorMessage 
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
